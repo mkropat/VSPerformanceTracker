@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 
 namespace VSPerformanceTracker.VSInterface
 {
-    public class BuildListener : IDisposable
+    public sealed class BuildListener : IDisposable
     {
         private readonly IVsSolutionBuildManager _buildManager;
         private readonly IVsSolutionBuildManager5 _buildManager5;
@@ -47,6 +47,8 @@ namespace VSPerformanceTracker.VSInterface
         {
             _buildManager.UnadviseUpdateSolutionEvents(_sinkHandle);
             _buildManager5.UnadviseUpdateSolutionEvents4(_sinkHandle2);
+
+            _resultSubject.Dispose();
         }
 
         class UpdateSolutionEventSink2 : IVsUpdateSolutionEvents4

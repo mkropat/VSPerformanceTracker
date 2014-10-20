@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 
 namespace VSPerformanceTracker.VSInterface
 {
-    public class SolutionLoadListener : IDisposable
+    public sealed class SolutionLoadListener : IDisposable
     {
         private readonly uint _loadSinkCookie;
         private readonly uint _eventSinkCookie;
@@ -48,6 +48,8 @@ namespace VSPerformanceTracker.VSInterface
         {
             _solutionService.UnadviseSolutionEvents(_loadSinkCookie);
             _solutionService.UnadviseSolutionEvents(_eventSinkCookie);
+
+            _resultSubject.Dispose();
         }
 
         class SolutionEventSink : IVsSolutionEvents

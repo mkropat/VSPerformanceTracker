@@ -17,7 +17,7 @@ namespace VSPerformanceTracker
     [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)]
     [ProvideAutoLoad(UIContextGuids80.SolutionExists)]
     [Guid(GuidList.guidVSPackage1PkgString)]
-    public sealed class VsPerformanceTrackerPackage : Package
+    public sealed class VsPerformanceTrackerPackage : Package, IDisposable
     {
         private BuildListener _buildListener;
         private SolutionLoadListener _solutionLoadListener;
@@ -56,6 +56,11 @@ namespace VSPerformanceTracker
             _buildListener = new BuildListener(buildManager, buildManager5);
             var buildTransformer = new BuildToPerformanceEventTransformer(_solutionQueryer);
             return _buildListener.LoadFinished.Select(buildTransformer.Transform);
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
         }
 
         protected override void Dispose(bool disposing)
