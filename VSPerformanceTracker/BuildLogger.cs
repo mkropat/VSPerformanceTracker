@@ -6,6 +6,7 @@ namespace VSPerformanceTracker
     public class PerformanceEvent
     {
         public string Subject      { get; set; }
+        public string Branch       { get; set; }
         public string EventType    { get; set; }
         public DateTime Start      { get; set; }
         public TimeSpan Duration   { get; set; }
@@ -30,6 +31,7 @@ namespace VSPerformanceTracker
             var line = new object[]
             {
                 evt.Subject,
+                evt.Branch,
                 evt.EventType,
                 evt.Start.ToLocalTime(),
                 evt.Duration,

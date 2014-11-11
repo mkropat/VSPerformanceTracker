@@ -15,9 +15,12 @@ namespace VSPerformanceTracker
 
         public PerformanceEvent Transform(SolutionLoadResult result)
         {
+            var solution = _solutionQueryer.GetCurrent();
+
             return new PerformanceEvent
             {
-                Subject = _solutionQueryer.GetCurrent().File,
+                Subject = solution.File,
+                Branch = GitInterface.GetBranchName(solution.Directory),
                 EventType = EventType,
                 Start = result.Start,
                 Duration = result.Duration,

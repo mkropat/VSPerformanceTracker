@@ -42,7 +42,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="LibGit2Sharp">
-      <HintPath>..\packages\LibGit2Sharp.0.20.0.0\lib\net40\LibGit2Sharp.dll</HintPath>
+      <HintPath>..\packages\LocalSigned\LibGit2Sharp.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.VisualStudio.OLE.Interop" />
@@ -140,6 +140,7 @@
   <ItemGroup>
     <Compile Include="BuildLogger.cs" />
     <Compile Include="BuildToPerformanceEventTransformer.cs" />
+    <Compile Include="GitInterface.cs" />
     <Compile Include="Guids.cs" />
     <Compile Include="Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -184,6 +185,11 @@
     <None Include="Key.snk" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="git2-3f8d005.dll">
+      <IncludeInVSIX>true</IncludeInVSIX>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="git2-3f8d005.pdb" />
     <Content Include="Resources\Package.ico" />
   </ItemGroup>
   <PropertyGroup>
