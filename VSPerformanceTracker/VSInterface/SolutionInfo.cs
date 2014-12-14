@@ -9,9 +9,7 @@ namespace VSPerformanceTracker.VSInterface
         public static SolutionInfo GetCurrent(IVsSolution solutionService)
         {
             string dir, file, optionsFile;
-            var result = solutionService.GetSolutionInfo(out dir, out file, out optionsFile);
-            if (result != VSConstants.S_OK)
-                throw new Exception("VS Error code: " + result);
+            ErrorHandler.ThrowOnFailure(solutionService.GetSolutionInfo(out dir, out file, out optionsFile));
 
             return new SolutionInfo
             {

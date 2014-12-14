@@ -26,7 +26,7 @@ namespace VSPerformanceTracker.VSInterface
         {
             _buildManager = buildManager;
             _eventSink = new UpdateSolutionEventSink { Listner = this };
-            _buildManager.AdviseUpdateSolutionEvents(_eventSink, out _sinkHandle);
+            ErrorHandler.ThrowOnFailure(_buildManager.AdviseUpdateSolutionEvents(_eventSink, out _sinkHandle));
 
             _buildManager5 = buildManager5;
             var eventSink2 = new UpdateSolutionEventSink2();
@@ -46,8 +46,8 @@ namespace VSPerformanceTracker.VSInterface
 
         public void Dispose()
         {
-            _buildManager.UnadviseUpdateSolutionEvents(_sinkHandle);
-            _buildManager5.UnadviseUpdateSolutionEvents4(_sinkHandle2);
+            ErrorHandler.CallWithCOMConvention(() => _buildManager.UnadviseUpdateSolutionEvents(_sinkHandle));
+            ErrorHandler.CallWithCOMConvention(() => _buildManager5.UnadviseUpdateSolutionEvents4(_sinkHandle2));
 
             _resultSubject.Dispose();
         }

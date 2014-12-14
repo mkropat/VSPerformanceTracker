@@ -26,8 +26,8 @@ namespace VSPerformanceTracker.VSInterface
             _solutionService = solutionService;
 
             _eventSink = new SolutionEventSink();
-            _solutionService.AdviseSolutionEvents(_eventSink, out _eventSinkCookie);
-            _solutionService.AdviseSolutionEvents(new SolutionLoadEventSink { Listener = this }, out _loadSinkCookie);
+            ErrorHandler.ThrowOnFailure(_solutionService.AdviseSolutionEvents(_eventSink, out _eventSinkCookie));
+            ErrorHandler.ThrowOnFailure(_solutionService.AdviseSolutionEvents(new SolutionLoadEventSink { Listener = this }, out _loadSinkCookie));
         }
 
         private void OnSolutionLoaded()
@@ -47,8 +47,8 @@ namespace VSPerformanceTracker.VSInterface
 
         public void Dispose()
         {
-            _solutionService.UnadviseSolutionEvents(_loadSinkCookie);
-            _solutionService.UnadviseSolutionEvents(_eventSinkCookie);
+            ErrorHandler.CallWithCOMConvention(() => _solutionService.UnadviseSolutionEvents(_loadSinkCookie));
+            ErrorHandler.CallWithCOMConvention(() => _solutionService.UnadviseSolutionEvents(_eventSinkCookie));
 
             _resultSubject.Dispose();
         }

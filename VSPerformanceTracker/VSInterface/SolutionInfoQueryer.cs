@@ -5,7 +5,7 @@ namespace VSPerformanceTracker.VSInterface
     public class SolutionInfoQueryer : ISolutionInfoQueryer
     {
         private readonly IVsSolution _solutionService;
-        
+
         public SolutionInfoQueryer(IVsSolution solutionService)
         {
             _solutionService = solutionService;
