@@ -23,40 +23,47 @@ namespace VSPerformanceTracker
     {
         private BuildListener _buildListener;
         private SolutionLoadListener _solutionLoadListener;
-        private ISolutionInfoQueryer _solutionQueryer;
 
         protected override void Initialize()
         {
             base.Initialize();
 
-            var solutionService = (IVsSolution) GetService(typeof (SVsSolution));
-            var buildManager = (IVsSolutionBuildManager) GetService(typeof (SVsSolutionBuildManager));
-            var buildManager5 = (IVsSolutionBuildManager5) GetService(typeof (SVsSolutionBuildManager));
+            StartLogging(StartEventListeners());
+        }
 
-            _solutionQueryer = new SolutionInfoQueryer(solutionService);
-
-            var events = Observable.Merge(new []
-            {
-                ListenForBuildEvents(buildManager, buildManager5),
-                ListenForSolutionLoadEvents(solutionService),
-            });
-
+        private void StartLogging(IObservable<PerformanceEvent> events)
+        {
             var logFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "build-log.csv");
 
             PerformanceEventLogger.Run(events, new AppendableFile(logFile));
         }
 
-        private IObservable<PerformanceEvent> ListenForSolutionLoadEvents(IVsSolution solutionService)
+        private IObservable<PerformanceEvent> StartEventListeners()
+        {
+            var solutionService = (IVsSolution)GetService(typeof(SVsSolution));
+            var solutionQueryer = new SolutionInfoQueryer(solutionService);
+
+            var buildManager = (IVsSolutionBuildManager)GetService(typeof(SVsSolutionBuildManager));
+            var buildManager5 = (IVsSolutionBuildManager5)GetService(typeof(SVsSolutionBuildManager));
+
+            return Observable.Merge(new[]
+            {
+                ListenForSolutionLoadEvents(solutionService, solutionQueryer),
+                ListenForBuildEvents(solutionQueryer, buildManager, buildManager5),
+            });
+        }
+
+        private IObservable<PerformanceEvent> ListenForSolutionLoadEvents(IVsSolution solutionService, SolutionInfoQueryer solutionQueryer)
         {
             _solutionLoadListener = new SolutionLoadListener(solutionService);
-            var solutionLoadTransformer = new SolutionLoadToPerformanceEventTransformer(_solutionQueryer);
+            var solutionLoadTransformer = new SolutionLoadToPerformanceEventTransformer(solutionQueryer);
             return _solutionLoadListener.LoadFinished.Select(solutionLoadTransformer.Transform);
         }
 
-        private IObservable<PerformanceEvent> ListenForBuildEvents(IVsSolutionBuildManager buildManager, IVsSolutionBuildManager5 buildManager5)
+        private IObservable<PerformanceEvent> ListenForBuildEvents(SolutionInfoQueryer solutionQueryer, IVsSolutionBuildManager buildManager, IVsSolutionBuildManager5 buildManager5)
         {
             _buildListener = new BuildListener(buildManager, buildManager5);
-            var buildTransformer = new BuildToPerformanceEventTransformer(_solutionQueryer);
+            var buildTransformer = new BuildToPerformanceEventTransformer(solutionQueryer);
             return _buildListener.LoadFinished.Select(buildTransformer.Transform);
         }
 
@@ -68,8 +75,12 @@ namespace VSPerformanceTracker
         protected override void Dispose(bool disposing)
         {
             base.Dispose(disposing);
-            _buildListener.Dispose();
-            _solutionLoadListener.Dispose();
+
+            if (_buildListener != null)
+                _buildListener.Dispose();
+
+            if (_solutionLoadListener != null)
+                _solutionLoadListener.Dispose();
         }
     }
 }
