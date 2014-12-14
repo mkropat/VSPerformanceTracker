@@ -3,6 +3,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell.Interop;
+using VSPerformanceTracker.EventResults;
 
 namespace VSPerformanceTracker.VSInterface
 {
@@ -14,9 +15,9 @@ namespace VSPerformanceTracker.VSInterface
         private readonly UpdateSolutionEventSink _eventSink;
         private readonly uint _sinkHandle2;
 
-        private readonly Subject<BuildResult> _resultSubject = new Subject<BuildResult>();
+        private readonly Subject<GenericEventResult> _resultSubject = new Subject<GenericEventResult>();
 
-        public IObservable<BuildResult> LoadFinished
+        public IObservable<IEventResult> LoadFinished
         {
             get { return _resultSubject.AsObservable(); }
         }
@@ -36,7 +37,7 @@ namespace VSPerformanceTracker.VSInterface
         {
             _eventSink.Reset();
 
-            _resultSubject.OnNext(new BuildResult
+            _resultSubject.OnNext(new GenericEventResult
             {
                 Start = start,
                 Duration = DateTime.UtcNow - start,

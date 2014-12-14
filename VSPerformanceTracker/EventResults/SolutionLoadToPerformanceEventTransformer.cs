@@ -1,31 +1,17 @@
-using VSPerformanceTracker.Logging;
 using VSPerformanceTracker.VSInterface;
 
 namespace VSPerformanceTracker.EventResults
 {
-    public class SolutionLoadToPerformanceEventTransformer
+    public class SolutionLoadToPerformanceEventTransformer : GenericPerformanceEventTransformer
     {
-        const string EventType = "solution-load";
-
-        private readonly ISolutionInfoQueryer _solutionQueryer;
-
-        public SolutionLoadToPerformanceEventTransformer(ISolutionInfoQueryer solutionQueryer)
+        protected override string EventType
         {
-            _solutionQueryer = solutionQueryer;
+            get { return "solution-load"; }
         }
 
-        public PerformanceEvent Transform(SolutionLoadResult result)
+        public SolutionLoadToPerformanceEventTransformer(ISolutionInfoQueryer solutionQueryer)
+            : base(solutionQueryer)
         {
-            var solution = _solutionQueryer.GetCurrent();
-
-            return new PerformanceEvent
-            {
-                Subject = solution.File,
-                Branch = GitInterface.GetBranchName(solution.Directory),
-                EventType = EventType,
-                Start = result.Start,
-                Duration = result.Duration,
-            };
         }
     }
 }

@@ -139,6 +139,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="EventResults\BuildToPerformanceEventTransformer.cs" />
+    <Compile Include="EventResults\GenericEventResult.cs" />
+    <Compile Include="EventResults\GenericPerformanceEventTransformer.cs" />
+    <Compile Include="EventResults\IEventResult.cs" />
     <Compile Include="GitInterface.cs" />
     <Compile Include="Guids.cs" />
     <Compile Include="Logging\PerformanceEvent.cs" />
@@ -153,14 +156,10 @@
     <Compile Include="FSInterface\AppendableFile.cs" />
     <Compile Include="FSInterface\IOpenableFile.cs" />
     <Compile Include="VSInterface\BuildListener.cs" />
-    <Compile Include="VSInterface\BuildResult.cs" />
-    <Compile Include="VSInterface\BuildResultHandler.cs" />
     <Compile Include="VSInterface\ISolutionInfoQueryer.cs" />
     <Compile Include="VSInterface\SolutionInfo.cs" />
     <Compile Include="VSInterface\SolutionInfoQueryer.cs" />
     <Compile Include="VSInterface\SolutionLoadListener.cs" />
-    <Compile Include="VSInterface\SolutionLoadResult.cs" />
-    <Compile Include="VSInterface\SolutionLoadResultHandler.cs" />
     <Compile Include="VsPerformanceTrackerPackage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
