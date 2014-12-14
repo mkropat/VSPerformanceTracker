@@ -149,8 +149,8 @@
     </Compile>
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="SolutionLoadToPerformanceEventTransformer.cs" />
-    <Compile Include="Utils\AppendableFile.cs" />
-    <Compile Include="Utils\IOpenableFile.cs" />
+    <Compile Include="FSInterface\AppendableFile.cs" />
+    <Compile Include="FSInterface\IOpenableFile.cs" />
     <Compile Include="VSInterface\BuildListener.cs" />
     <Compile Include="VSInterface\BuildResult.cs" />
     <Compile Include="VSInterface\BuildResultHandler.cs" />
