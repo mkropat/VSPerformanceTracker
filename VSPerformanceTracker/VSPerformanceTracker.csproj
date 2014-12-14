@@ -138,10 +138,11 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BuildLogger.cs" />
     <Compile Include="BuildToPerformanceEventTransformer.cs" />
     <Compile Include="GitInterface.cs" />
     <Compile Include="Guids.cs" />
+    <Compile Include="Logging\PerformanceEvent.cs" />
+    <Compile Include="Logging\PerformanceEventLogger.cs" />
     <Compile Include="Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

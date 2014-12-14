@@ -1,3 +1,4 @@
+using VSPerformanceTracker.Logging;
 using VSPerformanceTracker.VSInterface;
 
 namespace VSPerformanceTracker
