@@ -80,6 +80,7 @@
     </Reference>
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
     <COMReference Include="EnvDTE">
@@ -138,12 +139,26 @@
     </COMReference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DebugStartedAggregator.cs" />
     <Compile Include="EventResults\BuildToPerformanceEventTransformer.cs" />
+    <Compile Include="EventResults\DebugStartedToPerformanceEventTransformer.cs" />
     <Compile Include="EventResults\GenericEventResult.cs" />
     <Compile Include="EventResults\GenericPerformanceEventTransformer.cs" />
     <Compile Include="EventResults\IEventResult.cs" />
+    <Compile Include="FSInterface\FileSizesSnapshot.cs" />
+    <Compile Include="FSInterface\FileUpdateWatcher.cs" />
+    <Compile Include="FSInterface\IFileSizesSnapshot.cs" />
+    <Compile Include="FSInterface\ILineReader.cs" />
+    <Compile Include="FSInterface\TailReadingFile.cs" />
     <Compile Include="GitInterface.cs" />
     <Compile Include="Guids.cs" />
+    <Compile Include="IISInterface\IISExpressLogDirWatcher.cs" />
+    <Compile Include="IISInterface\IISExpressLogFileParser.cs" />
+    <Compile Include="IISInterface\IISExpressLogFileParserFactory.cs" />
+    <Compile Include="IISInterface\IISExpressLogWatcher.cs" />
+    <Compile Include="IISInterface\IISLogEvent.cs" />
+    <Compile Include="IISInterface\IISExpressSettings.cs" />
+    <Compile Include="IISInterface\W3cLogParser.cs" />
     <Compile Include="Logging\PerformanceEvent.cs" />
     <Compile Include="Logging\PerformanceEventLogger.cs" />
     <Compile Include="Resources.Designer.cs">
@@ -155,7 +170,10 @@
     <Compile Include="EventResults\SolutionLoadToPerformanceEventTransformer.cs" />
     <Compile Include="FSInterface\AppendableFile.cs" />
     <Compile Include="FSInterface\IOpenableFile.cs" />
+    <Compile Include="VSInterface\BrowseToUrlQueryer.cs" />
     <Compile Include="VSInterface\BuildListener.cs" />
+    <Compile Include="VSInterface\DebuggerEvent.cs" />
+    <Compile Include="VSInterface\DebuggerListener.cs" />
     <Compile Include="VSInterface\ISolutionInfoQueryer.cs" />
     <Compile Include="VSInterface\SolutionInfo.cs" />
     <Compile Include="VSInterface\SolutionInfoQueryer.cs" />

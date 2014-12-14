@@ -2,10 +2,12 @@
 using System.IO;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices;
+using EnvDTE;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using VSPerformanceTracker.EventResults;
 using VSPerformanceTracker.FSInterface;
+using VSPerformanceTracker.IISInterface;
 using VSPerformanceTracker.Logging;
 using VSPerformanceTracker.VSInterface;
 
@@ -22,6 +24,7 @@ namespace VSPerformanceTracker
     public sealed class VsPerformanceTrackerPackage : Package, IDisposable
     {
         private BuildListener _buildListener;
+        private DebuggerListener _debuggerListener;
         private SolutionLoadListener _solutionLoadListener;
 
         protected override void Initialize()
@@ -40,16 +43,21 @@ namespace VSPerformanceTracker
 
         private IObservable<PerformanceEvent> StartEventListeners()
         {
-            var solutionService = (IVsSolution)GetService(typeof(SVsSolution));
-            var solutionQueryer = new SolutionInfoQueryer(solutionService);
-
             var buildManager = (IVsSolutionBuildManager)GetService(typeof(SVsSolutionBuildManager));
             var buildManager5 = (IVsSolutionBuildManager5)GetService(typeof(SVsSolutionBuildManager));
+
+            var debuggerService = (IVsDebugger)GetService(typeof(IVsDebugger));
+
+            var dteService = (DTE)GetGlobalService(typeof(SDTE));
+
+            var solutionService = (IVsSolution)GetService(typeof(SVsSolution));
+            var solutionQueryer = new SolutionInfoQueryer(solutionService);
 
             return Observable.Merge(new[]
             {
                 ListenForSolutionLoadEvents(solutionService, solutionQueryer),
                 ListenForBuildEvents(solutionQueryer, buildManager, buildManager5),
+                ListenForDebugStartedEvents(solutionQueryer, debuggerService, dteService),
             });
         }
 
@@ -67,6 +75,19 @@ namespace VSPerformanceTracker
             return _buildListener.LoadFinished.Select(buildTransformer.Transform);
         }
 
+        private IObservable<PerformanceEvent> ListenForDebugStartedEvents(SolutionInfoQueryer solutionQueryer, IVsDebugger debugger, DTE dteService)
+        {
+            _debuggerListener = new DebuggerListener(debugger);
+            var logWatcher = IISExpressLogWatcher.Watch();
+
+            var aggregator = new DebugStartAggregator(new BrowseToUrlQueryer(dteService));
+            var transformer = new DebugStartedToPerformanceEventTransformer(solutionQueryer);
+
+            aggregator.Aggregate(_debuggerListener.Events, logWatcher);
+
+            return aggregator.DebugStarted.Select(transformer.Transform);
+        }
+
         public void Dispose()
         {
             Dispose(true);
@@ -78,6 +99,9 @@ namespace VSPerformanceTracker
 
             if (_buildListener != null)
                 _buildListener.Dispose();
+
+            if (_debuggerListener != null)
+                _debuggerListener.Dispose();
 
             if (_solutionLoadListener != null)
                 _solutionLoadListener.Dispose();
