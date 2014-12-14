@@ -9,6 +9,7 @@ using VSPerformanceTracker.EventResults;
 using VSPerformanceTracker.FSInterface;
 using VSPerformanceTracker.IISInterface;
 using VSPerformanceTracker.Logging;
+using VSPerformanceTracker.OSInterface;
 using VSPerformanceTracker.VSInterface;
 
 namespace VSPerformanceTracker
@@ -53,38 +54,39 @@ namespace VSPerformanceTracker
             var solutionService = (IVsSolution)GetService(typeof(SVsSolution));
             var solutionQueryer = new SolutionInfoQueryer(solutionService);
 
+            var timeService = new TimeService();
+
             return Observable.Merge(new[]
             {
-                ListenForSolutionLoadEvents(solutionService, solutionQueryer),
-                ListenForBuildEvents(solutionQueryer, buildManager, buildManager5),
-                ListenForDebugStartedEvents(solutionQueryer, debuggerService, dteService),
+                ListenForSolutionLoadEvents(solutionService, solutionQueryer, timeService),
+                ListenForBuildEvents(buildManager, buildManager5, solutionQueryer, timeService),
+                ListenForDebugStartedEvents(debuggerService, dteService, solutionQueryer, timeService),
             });
         }
 
-        private IObservable<PerformanceEvent> ListenForSolutionLoadEvents(IVsSolution solutionService, SolutionInfoQueryer solutionQueryer)
+        private IObservable<PerformanceEvent> ListenForSolutionLoadEvents(IVsSolution solutionService, SolutionInfoQueryer solutionQueryer, ITimeService timeService)
         {
-            _solutionLoadListener = new SolutionLoadListener(solutionService);
+            _solutionLoadListener = new SolutionLoadListener(solutionService, timeService);
             var solutionLoadTransformer = new SolutionLoadToPerformanceEventTransformer(solutionQueryer);
             return _solutionLoadListener.LoadFinished.Select(solutionLoadTransformer.Transform);
         }
 
-        private IObservable<PerformanceEvent> ListenForBuildEvents(SolutionInfoQueryer solutionQueryer, IVsSolutionBuildManager buildManager, IVsSolutionBuildManager5 buildManager5)
+        private IObservable<PerformanceEvent> ListenForBuildEvents(IVsSolutionBuildManager buildManager, IVsSolutionBuildManager5 buildManager5, SolutionInfoQueryer solutionQueryer, ITimeService timeService)
         {
-            _buildListener = new BuildListener(buildManager, buildManager5);
+            _buildListener = new BuildListener(buildManager, buildManager5, timeService);
             var buildTransformer = new BuildToPerformanceEventTransformer(solutionQueryer);
             return _buildListener.LoadFinished.Select(buildTransformer.Transform);
         }
 
-        private IObservable<PerformanceEvent> ListenForDebugStartedEvents(SolutionInfoQueryer solutionQueryer, IVsDebugger debugger, DTE dteService)
+        private IObservable<PerformanceEvent> ListenForDebugStartedEvents(IVsDebugger debugger, DTE dteService, SolutionInfoQueryer solutionQueryer, ITimeService timeService)
         {
-            _debuggerListener = new DebuggerListener(debugger);
+            var aggregator = new DebugStartAggregator(new BrowseToUrlQueryer(dteService), timeService);
+
+            _debuggerListener = new DebuggerListener(debugger, timeService);
             var logWatcher = IISExpressLogWatcher.Watch();
-
-            var aggregator = new DebugStartAggregator(new BrowseToUrlQueryer(dteService));
-            var transformer = new DebugStartedToPerformanceEventTransformer(solutionQueryer);
-
             aggregator.Aggregate(_debuggerListener.Events, logWatcher);
 
+            var transformer = new DebugStartedToPerformanceEventTransformer(solutionQueryer);
             return aggregator.DebugStarted.Select(transformer.Transform);
         }
 

@@ -5,6 +5,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using VSPerformanceTracker.EventResults;
 using VSPerformanceTracker.IISInterface;
+using VSPerformanceTracker.OSInterface;
 using VSPerformanceTracker.VSInterface;
 
 namespace VSPerformanceTracker
@@ -19,13 +20,15 @@ namespace VSPerformanceTracker
         }
 
         private readonly BrowseToUrlQueryer _urlQueryer;
+        private readonly ITimeService _timeService;
         private DebuggerAggregatorEvent _currentEvent;
         private readonly Subject<GenericEventResult> _events = new Subject<GenericEventResult>();
         private readonly IList<DebuggerAggregatorEvent> _bufferedEvents = new List<DebuggerAggregatorEvent>(); // FIXME: should be a circular buffer
 
-        public DebugStartAggregator(BrowseToUrlQueryer urlQueryer)
+        public DebugStartAggregator(BrowseToUrlQueryer urlQueryer, ITimeService timeService)
         {
             _urlQueryer = urlQueryer;
+            _timeService = timeService;
         }
 
         public IObservable<IEventResult> DebugStarted
@@ -48,7 +51,7 @@ namespace VSPerformanceTracker
 
                     _currentEvent = new DebuggerAggregatorEvent
                     {
-                        Start = DateTime.UtcNow,
+                        Start = _timeService.GetCurrent(),
                         Path = _urlQueryer.GetCurrent(),
                     };
 
@@ -95,7 +98,7 @@ namespace VSPerformanceTracker
             if (_currentEvent == null)
                 return;
 
-            _currentEvent.End = DateTime.UtcNow;
+            _currentEvent.End = _timeService.GetCurrent();
             _bufferedEvents.Add(_currentEvent);
             _currentEvent = null;
         }

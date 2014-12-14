@@ -3,6 +3,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell.Interop;
+using VSPerformanceTracker.OSInterface;
 
 namespace VSPerformanceTracker.VSInterface
 {
@@ -10,13 +11,15 @@ namespace VSPerformanceTracker.VSInterface
     {
         private readonly uint _eventsSinkCookie;
         private readonly IVsDebugger _debuggerService;
+        private readonly ITimeService _timeSerivce;
         private readonly Subject<DebuggerEvent> _debuggerEvents = new Subject<DebuggerEvent>();
 
-        public DebuggerListener(IVsDebugger debuggerService)
+        public DebuggerListener(IVsDebugger debuggerService, ITimeService timeService)
         {
             _debuggerService = debuggerService;
+            _timeSerivce = timeService;
 
-            ErrorHandler.ThrowOnFailure(_debuggerService.AdviseDebuggerEvents(new DebuggerEventsSink(this), out _eventsSinkCookie));
+            ErrorHandler.ThrowOnFailure(_debuggerService.AdviseDebuggerEvents(new DebuggerEventsSink { Listener = this }, out _eventsSinkCookie));
         }
 
         public IObservable<DebuggerEvent> Events
@@ -26,12 +29,7 @@ namespace VSPerformanceTracker.VSInterface
 
         class DebuggerEventsSink : IVsDebuggerEvents
         {
-            private readonly DebuggerListener _listener;
-
-            public DebuggerEventsSink(DebuggerListener listener)
-            {
-                _listener = listener;
-            }
+            public DebuggerListener Listener { get; set; }
 
             public int OnModeChange(DBGMODE dbgmodeNew)
             {
@@ -51,10 +49,10 @@ namespace VSPerformanceTracker.VSInterface
 
             private void ReportAction(DebuggerAction action)
             {
-                _listener._debuggerEvents.OnNext(new DebuggerEvent
+                Listener._debuggerEvents.OnNext(new DebuggerEvent
                 {
                     Action = action,
-                    Time = DateTime.UtcNow,
+                    Time = Listener._timeSerivce.GetCurrent(),
                 });
             }
         }

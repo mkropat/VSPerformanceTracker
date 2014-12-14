@@ -161,6 +161,8 @@
     <Compile Include="IISInterface\W3cLogParser.cs" />
     <Compile Include="Logging\PerformanceEvent.cs" />
     <Compile Include="Logging\PerformanceEventLogger.cs" />
+    <Compile Include="OSInterface\ITimeService.cs" />
+    <Compile Include="OSInterface\TimeService.cs" />
     <Compile Include="Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

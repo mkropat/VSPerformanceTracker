@@ -4,6 +4,7 @@ using System.Reactive.Subjects;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell.Interop;
 using VSPerformanceTracker.EventResults;
+using VSPerformanceTracker.OSInterface;
 
 namespace VSPerformanceTracker.VSInterface
 {
@@ -12,6 +13,7 @@ namespace VSPerformanceTracker.VSInterface
         private readonly uint _loadSinkCookie;
         private readonly uint _eventSinkCookie;
         private readonly IVsSolution _solutionService;
+        private readonly ITimeService _timeService;
         private readonly SolutionEventSink _eventSink;
 
         private readonly Subject<GenericEventResult> _resultSubject = new Subject<GenericEventResult>();
@@ -21,11 +23,12 @@ namespace VSPerformanceTracker.VSInterface
             get { return _resultSubject.AsObservable(); }
         }
 
-        public SolutionLoadListener(IVsSolution solutionService)
+        public SolutionLoadListener(IVsSolution solutionService, ITimeService timeService)
         {
             _solutionService = solutionService;
+            _timeService = timeService;
 
-            _eventSink = new SolutionEventSink();
+            _eventSink = new SolutionEventSink { Listener = this };
             ErrorHandler.ThrowOnFailure(_solutionService.AdviseSolutionEvents(_eventSink, out _eventSinkCookie));
             ErrorHandler.ThrowOnFailure(_solutionService.AdviseSolutionEvents(new SolutionLoadEventSink { Listener = this }, out _loadSinkCookie));
         }
@@ -41,7 +44,7 @@ namespace VSPerformanceTracker.VSInterface
             _resultSubject.OnNext(new GenericEventResult
             {
                 Start = start,
-                Duration = DateTime.UtcNow - start,
+                Duration = _timeService.GetCurrent() - start,
             });
         }
 
@@ -55,6 +58,7 @@ namespace VSPerformanceTracker.VSInterface
 
         class SolutionEventSink : IVsSolutionEvents
         {
+            public SolutionLoadListener Listener { get; set; }
             public DateTime? Start { get; private set; }
 
             public void Reset()
@@ -94,7 +98,7 @@ namespace VSPerformanceTracker.VSInterface
 
             public int OnAfterOpenSolution(object pUnkReserved, int fNewSolution)
             {
-                Start = DateTime.UtcNow;
+                Start = Listener._timeService.GetCurrent();
 
                 return VSConstants.S_OK;
             }

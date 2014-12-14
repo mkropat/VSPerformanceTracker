@@ -4,11 +4,13 @@ using System.Reactive.Subjects;
 using Microsoft.VisualStudio;
 using Microsoft.VisualStudio.Shell.Interop;
 using VSPerformanceTracker.EventResults;
+using VSPerformanceTracker.OSInterface;
 
 namespace VSPerformanceTracker.VSInterface
 {
     public sealed class BuildListener : IDisposable
     {
+        private readonly ITimeService _timeService;
         private readonly IVsSolutionBuildManager _buildManager;
         private readonly IVsSolutionBuildManager5 _buildManager5;
         private readonly uint _sinkHandle;
@@ -22,10 +24,12 @@ namespace VSPerformanceTracker.VSInterface
             get { return _resultSubject.AsObservable(); }
         }
 
-        public BuildListener(IVsSolutionBuildManager buildManager, IVsSolutionBuildManager5 buildManager5)
+        public BuildListener(IVsSolutionBuildManager buildManager, IVsSolutionBuildManager5 buildManager5, ITimeService timeService)
         {
+            _timeService = timeService;
+
             _buildManager = buildManager;
-            _eventSink = new UpdateSolutionEventSink { Listner = this };
+            _eventSink = new UpdateSolutionEventSink { Listener = this };
             ErrorHandler.ThrowOnFailure(_buildManager.AdviseUpdateSolutionEvents(_eventSink, out _sinkHandle));
 
             _buildManager5 = buildManager5;
@@ -40,7 +44,7 @@ namespace VSPerformanceTracker.VSInterface
             _resultSubject.OnNext(new GenericEventResult
             {
                 Start = start,
-                Duration = DateTime.UtcNow - start,
+                Duration = _timeService.GetCurrent() - start,
             });
         }
 
@@ -89,7 +93,7 @@ namespace VSPerformanceTracker.VSInterface
         class UpdateSolutionEventSink : IVsUpdateSolutionEvents
         {
             private DateTime? _start;
-            public BuildListener Listner { private get; set; }
+            public BuildListener Listener { private get; set; }
 
             public void Reset()
             {
@@ -98,7 +102,7 @@ namespace VSPerformanceTracker.VSInterface
 
             public int UpdateSolution_Begin(ref int pfCancelUpdate)
             {
-                _start = DateTime.UtcNow;
+                _start = Listener._timeService.GetCurrent();
 
                 return VSConstants.S_OK;
             }
@@ -109,7 +113,7 @@ namespace VSPerformanceTracker.VSInterface
                 {
                     var start = _start.Value;
                     Reset();
-                    Listner.OnBuildFinished(start);
+                    Listener.OnBuildFinished(start);
                 }
 
                 return VSConstants.S_OK;
