@@ -4,6 +4,7 @@ using System.Reactive.Linq;
 using System.Runtime.InteropServices;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
+using VSPerformanceTracker.EventResults;
 using VSPerformanceTracker.FSInterface;
 using VSPerformanceTracker.Logging;
 using VSPerformanceTracker.VSInterface;
