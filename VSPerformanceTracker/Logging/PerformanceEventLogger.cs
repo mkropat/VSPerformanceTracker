@@ -7,22 +7,24 @@ namespace VSPerformanceTracker.Logging
     {
         public static void Run(IObservable<PerformanceEvent> eventSource, IOpenableFile logFile)
         {
+            if (!logFile.Exists())
+                WriteHeader(logFile);
+
             eventSource.Subscribe(evt => WriteEvent(evt, logFile));
+        }
+
+        private static void WriteHeader(IOpenableFile logFile)
+        {
+            using (var writer = logFile.OpenWriter())
+                CsvSerializer.SerializeHeader(typeof(LocalTimePerformanceEvent), writer);
         }
 
         private static void WriteEvent(PerformanceEvent evt, IOpenableFile logFile)
         {
-            var line = new object[]
-            {
-                evt.Subject,
-                evt.Branch,
-                evt.EventType,
-                evt.Start.ToLocalTime(),
-                evt.Duration,
-            };
+            var records = new[] { LocalTimePerformanceEvent.From(evt) };
 
             using (var writer = logFile.OpenWriter())
-                writer.WriteLine(string.Join(",", line));
+                CsvSerializer.SerializeRecords(records, writer);
         }
     }
 }

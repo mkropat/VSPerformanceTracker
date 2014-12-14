@@ -15,5 +15,10 @@ namespace VSPerformanceTracker.FSInterface
         {
             return File.AppendText(Path);
         }
+
+        public bool Exists()
+        {
+            return File.Exists(Path);
+        }
     }
 }
