@@ -4,7 +4,7 @@ using VSPerformanceTracker.FSInterface;
 
 namespace VSPerformanceTracker.IISInterface
 {
-    public class IISExpressLogDirWatcher : IDisposable
+    public sealed class IISExpressLogDirWatcher : IDisposable
     {
         private IISExpressLogFileParserFactory _factory;
         private FileUpdateWatcher _watcher;
