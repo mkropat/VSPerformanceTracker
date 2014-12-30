@@ -19,15 +19,21 @@ namespace VSPerformanceTracker.VSInterface
             var url = GetBrowseToUrl() ?? "/";
             if (url.StartsWith("~/"))
                 url = url.TrimPrefix("~");
+
             return url;
         }
 
         private string GetBrowseToUrl()
         {
-            var item = _dte.ActiveDocument.ProjectItem;
-            var browseToUrlProperty = item.Properties
-                .Cast<Property>()
-                .FirstOrDefault(p => p.Name.EndsWith("BrowseToURL", StringComparison.InvariantCulture));
+            Property browseToUrlProperty = null;
+            if (_dte.ActiveDocument != null)
+            {
+                var item = _dte.ActiveDocument.ProjectItem;
+                browseToUrlProperty = item.Properties
+                    .OfType<Property>()
+                    .FirstOrDefault(p => p.Name.EndsWith("BrowseToURL", StringComparison.InvariantCulture));
+            }
+
             return browseToUrlProperty == null
                 ? null
                 : (string)browseToUrlProperty.Value;
