@@ -56,12 +56,11 @@ namespace VSPerformanceTracker
 
             var timeService = new TimeService();
 
-            return Observable.Merge(new[]
-            {
+            return Observable.Merge(
                 ListenForSolutionLoadEvents(solutionService, solutionQueryer, timeService),
                 ListenForBuildEvents(buildManager, buildManager5, solutionQueryer, timeService),
-                ListenForDebugStartedEvents(debuggerService, dteService, solutionQueryer, timeService),
-            });
+                ListenForDebugStartedEvents(debuggerService, dteService, solutionQueryer, timeService)
+            );
         }
 
         private IObservable<PerformanceEvent> ListenForSolutionLoadEvents(IVsSolution solutionService, SolutionInfoQueryer solutionQueryer, ITimeService timeService)
@@ -83,7 +82,7 @@ namespace VSPerformanceTracker
             var aggregator = new DebugStartAggregator(new BrowseToUrlQueryer(dteService), timeService);
 
             _debuggerListener = new DebuggerListener(debugger, timeService);
-            var logWatcher = IISExpressLogWatcher.Watch(new LogDirWatcherFactory());
+            var logWatcher = IISExpressLogWatcher.Watch(IISExpressSettings.LogPath, new DirectoryEnumerator(), new DirUpdateWatcherFactory(), new LogDirWatcherFactory());
             aggregator.Aggregate(_debuggerListener.Events, logWatcher);
 
             var transformer = new DebugStartedToPerformanceEventTransformer(solutionQueryer);
@@ -117,7 +116,7 @@ namespace VSPerformanceTracker
             Func<IFileSizesSnapshot> takeSnapshot = () => FileSizesSnapshot.TakeSnapshot(dir);
 
             var readerRegistry = new IISExpressLogReaderRegistry(takeSnapshot, new LogReaderFactory());
-            var fileWatcher = new FileUpdateWatcher(takeSnapshot);
+            var fileWatcher = new PollingFileUpdateWatcher(takeSnapshot);
 
             return new IISExpressLogDirWatcher(readerRegistry, fileWatcher);
         }
@@ -128,6 +127,14 @@ namespace VSPerformanceTracker
         public ILogReader Create(string logPath, long initialOffset)
         {
             return new IISExpressLogFileReader(initialOffset, new TailReadingFile(logPath), new W3cLogParser());
+        }
+    }
+
+    public class DirUpdateWatcherFactory : IDirUpdateWatcherFactory
+    {
+        public IDirUpdateWatcher Create(string dir)
+        {
+            return new ListeningDirUpdateWatcher(dir);
         }
     }
 }

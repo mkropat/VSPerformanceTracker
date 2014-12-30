@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace VSPerformanceTracker.FSInterface
 {
-    public sealed class FileUpdateWatcher : IFileUpdateWatcher
+    public sealed class PollingFileUpdateWatcher : IFileUpdateWatcher
     {
         // FileSystemWatcher would be more efficient, unfortunately it doesn't do a good job of notifying on files that
         // are being actively held open and written to.  The only other alternative is to poll on the directory listing,
@@ -19,7 +19,7 @@ namespace VSPerformanceTracker.FSInterface
 
         const int _pollInterval = 1000;//ms
 
-        public FileUpdateWatcher(Func<IFileSizesSnapshot> takeSnapshot)
+        public PollingFileUpdateWatcher(Func<IFileSizesSnapshot> takeSnapshot)
         {
             _takeSnapshot = takeSnapshot;
         }

@@ -1,20 +1,33 @@
 ﻿using System;
-using System.IO;
-using System.Linq;
+using System.Collections.Generic;
 using System.Reactive.Linq;
+using VSPerformanceTracker.FSInterface;
 
 namespace VSPerformanceTracker.IISInterface
 {
     public static class IISExpressLogWatcher
     {
-        public static IObservable<IISLogEvent> Watch(ILogListenerFactory dirWatcherFactory)
+        public static IObservable<IISLogEvent> Watch(string logPath, IPathEnumerator directoryEnumerator, IDirUpdateWatcherFactory dirWatcherFactory, ILogListenerFactory dirListenerFactory)
         {
-            var watchers =
-                from dir in Directory.EnumerateDirectories(IISExpressSettings.LogPath)
-                let dirWatcher = dirWatcherFactory.Create(dir)
-                select dirWatcher.ListenForEvents();
+            var registry = new HashSet<string>();
 
-            return Observable.Merge(watchers.ToArray());
+            var dirWatcher = dirWatcherFactory.Create(logPath);
+
+            var eventsForNewDirs =
+                from dir in dirWatcher.DirsChanged
+                where registry.Add(dir)
+                let listener = dirListenerFactory.Create(dir)
+                from evt in listener.ListenForEvents()
+                select evt;
+
+            dirWatcher.StartWatching();
+
+            var eventsForExisting = directoryEnumerator.Enumerate(logPath).ToObservable()
+                .Where(dir => registry.Add(dir))
+                .Select(dir => dirListenerFactory.Create(dir))
+                .SelectMany(listener => listener.ListenForEvents());
+
+            return Observable.Merge(eventsForExisting, eventsForNewDirs);
         }
     }
 }

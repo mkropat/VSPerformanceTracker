@@ -145,8 +145,13 @@
     <Compile Include="EventResults\GenericEventResult.cs" />
     <Compile Include="EventResults\GenericPerformanceEventTransformer.cs" />
     <Compile Include="EventResults\IEventResult.cs" />
+    <Compile Include="FSInterface\DirectoryEnumerator.cs" />
     <Compile Include="FSInterface\FileSizesSnapshot.cs" />
-    <Compile Include="FSInterface\FileUpdateWatcher.cs" />
+    <Compile Include="FSInterface\IDirUpdateWatcherFactory.cs" />
+    <Compile Include="FSInterface\IPathEnumerator.cs" />
+    <Compile Include="FSInterface\ListeningDirUpdateWatcher.cs" />
+    <Compile Include="FSInterface\PollingFileUpdateWatcher.cs" />
+    <Compile Include="FSInterface\IDirUpdateWatcher.cs" />
     <Compile Include="FSInterface\IFileSizesSnapshot.cs" />
     <Compile Include="FSInterface\IFileUpdateWatcher.cs" />
     <Compile Include="FSInterface\ILineReader.cs" />
