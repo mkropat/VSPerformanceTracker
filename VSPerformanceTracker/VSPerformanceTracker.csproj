@@ -168,6 +168,7 @@
     <Compile Include="IISInterface\ILogReaderFactory.cs" />
     <Compile Include="IISInterface\W3cLogParser.cs" />
     <Compile Include="Logging\CsvSerializer.cs" />
+    <Compile Include="Logging\ISerializer.cs" />
     <Compile Include="Logging\LocalTimePerformanceEvent.cs" />
     <Compile Include="Logging\PerformanceEvent.cs" />
     <Compile Include="Logging\PerformanceEventLogger.cs" />

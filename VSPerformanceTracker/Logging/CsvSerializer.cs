@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using VSPerformanceTracker.FSInterface;
 
 namespace VSPerformanceTracker.Logging
 {
@@ -11,22 +12,35 @@ namespace VSPerformanceTracker.Logging
     ///
     /// [1] http://tools.ietf.org/html/rfc4180
     /// </summary>
-    public static class CsvSerializer
+    public class CsvSerializer : ISerializer
     {
         private const string CsvSeparator = ",";
 
-        public static void SerializeHeader(Type type, TextWriter output)
+        private readonly IWritableFile _outputFile;
+
+        public CsvSerializer(IWritableFile outputFile)
         {
-            var fields = GetFields(type);
-            output.WriteLine(QuoteRecord(fields.Select(f => f.Name)));
+            _outputFile = outputFile;
         }
 
-        public static void SerializeRecords<T>(IEnumerable<T> records, TextWriter output)
+        public void SerializeRecord<T>(T record)
         {
             var fields = GetFields(typeof(T));
 
-            foreach (var record in records)
-                output.WriteLine(QuoteRecord(FormatObject(fields, record)));
+            var needsHeader = !_outputFile.Exists();
+
+            using (var writer = _outputFile.OpenWriter())
+            {
+                if (needsHeader)
+                    WriteHeader(fields, writer);
+
+                writer.WriteLine(QuoteRecord(FormatObject(fields, record)));
+            }
+        }
+
+        private static void WriteHeader(IEnumerable<MemberInfo> fields, StreamWriter writer)
+        {
+            writer.WriteLine(QuoteRecord(fields.Select(f => f.Name)));
         }
 
         private static IEnumerable<MemberInfo> GetFields(Type type)

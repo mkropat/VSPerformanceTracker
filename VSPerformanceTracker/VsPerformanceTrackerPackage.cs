@@ -39,7 +39,7 @@ namespace VSPerformanceTracker
         {
             var logFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "build-log.csv");
 
-            PerformanceEventLogger.Run(events, new AppendableFile(logFile));
+            PerformanceEventLogger.Run(events, new CsvSerializer(new AppendableFile(logFile)));
         }
 
         private IObservable<PerformanceEvent> StartEventListeners()
