@@ -78,19 +78,36 @@ namespace VSPerformanceTracker
 
         private DebuggerAggregatorEvent PopBufferedStartEvent(string path, DateTime time)
         {
-            if (_currentEvent != null && path == _currentEvent.Path && _currentEvent.Start < time)
+            var tolerance = TimeSpan.FromSeconds(1);
+
+            if (_currentEvent != null && path == _currentEvent.Path && After(time, _currentEvent.Start, tolerance))
             {
                 var result = _currentEvent;
                 _currentEvent = null;
                 return result;
             }
 
-            var startEvent = _bufferedEvents.Reverse().FirstOrDefault(se => path == se.Path && se.Start < time && time < se.End);
+            var startEvent = _bufferedEvents.Reverse().FirstOrDefault(se => path == se.Path && WithinRange(time, se.Start, se.End, tolerance));
             if (startEvent == null)
                 return null;
 
             _bufferedEvents.Remove(startEvent);
             return startEvent;
+        }
+
+        private static bool WithinRange(DateTime time, DateTime? start, DateTime? end, TimeSpan tolerance)
+        {
+            return After(time, start, tolerance) && Before(time, end, tolerance);
+        }
+
+        private static bool After(DateTime time, DateTime? start, TimeSpan tolerance)
+        {
+            return start == null || start < time || (start.Value - time).Duration() < tolerance;
+        }
+
+        private static bool Before(DateTime time, DateTime? end, TimeSpan tolerance)
+        {
+            return end == null || (end.Value - time).Duration() < tolerance || time < end;
         }
 
         private void PushCurrentEvent()
