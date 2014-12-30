@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace VSPerformanceTracker.FSInterface
 {
-    public sealed class FileUpdateWatcher : IDisposable
+    public sealed class FileUpdateWatcher : IFileUpdateWatcher
     {
         // FileSystemWatcher would be more efficient, unfortunately it doesn't do a good job of notifying on files that
         // are being actively held open and written to.  The only other alternative is to poll on the directory listing,
@@ -29,7 +29,7 @@ namespace VSPerformanceTracker.FSInterface
             get { return _fileChanged.AsObservable(); }
         }
 
-        public void Watch()
+        public void StartWatching()
         {
             if (_cancelSource != null)
                 return;
@@ -81,5 +81,4 @@ namespace VSPerformanceTracker.FSInterface
             _fileChanged.Dispose();
         }
     }
-
 }

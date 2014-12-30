@@ -83,7 +83,7 @@ namespace VSPerformanceTracker
             var aggregator = new DebugStartAggregator(new BrowseToUrlQueryer(dteService), timeService);
 
             _debuggerListener = new DebuggerListener(debugger, timeService);
-            var logWatcher = IISExpressLogWatcher.Watch();
+            var logWatcher = IISExpressLogWatcher.Watch(new LogDirWatcherFactory());
             aggregator.Aggregate(_debuggerListener.Events, logWatcher);
 
             var transformer = new DebugStartedToPerformanceEventTransformer(solutionQueryer);
@@ -107,6 +107,27 @@ namespace VSPerformanceTracker
 
             if (_solutionLoadListener != null)
                 _solutionLoadListener.Dispose();
+        }
+    }
+
+    public class LogDirWatcherFactory : ILogListenerFactory
+    {
+        public ILogListener Create(string dir)
+        {
+            Func<IFileSizesSnapshot> takeSnapshot = () => FileSizesSnapshot.TakeSnapshot(dir);
+
+            var readerRegistry = new IISExpressLogReaderRegistry(takeSnapshot, new LogReaderFactory());
+            var fileWatcher = new FileUpdateWatcher(takeSnapshot);
+
+            return new IISExpressLogDirWatcher(readerRegistry, fileWatcher);
+        }
+    }
+
+    public class LogReaderFactory : ILogReaderFactory
+    {
+        public ILogReader Create(string logPath, long initialOffset)
+        {
+            return new IISExpressLogFileReader(initialOffset, new TailReadingFile(logPath), new W3cLogParser());
         }
     }
 }

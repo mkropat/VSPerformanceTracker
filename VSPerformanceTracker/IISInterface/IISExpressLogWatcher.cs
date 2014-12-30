@@ -1,24 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using VSPerformanceTracker.FSInterface;
 
 namespace VSPerformanceTracker.IISInterface
 {
     public static class IISExpressLogWatcher
     {
-        public static IObservable<IISLogEvent> Watch()
+        public static IObservable<IISLogEvent> Watch(ILogListenerFactory dirWatcherFactory)
         {
             var watchers =
                 from dir in Directory.EnumerateDirectories(IISExpressSettings.LogPath)
-                let factory = new IISExpressLogFileParserFactory(() => FileSizesSnapshot.TakeSnapshot(dir))
-                let fileWatcher = new FileUpdateWatcher(() => FileSizesSnapshot.TakeSnapshot(dir))
-                let logDirWatcher = new IISExpressLogDirWatcher(factory, fileWatcher)
-                select logDirWatcher.Watch();
+                let dirWatcher = dirWatcherFactory.Create(dir)
+                select dirWatcher.ListenForEvents();
 
             return Observable.Merge(watchers.ToArray());
         }

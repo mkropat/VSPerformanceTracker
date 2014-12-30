@@ -5,7 +5,7 @@ using Microsoft.VisualStudio.Shell;
 
 namespace VSPerformanceTracker.VSInterface
 {
-    public class BrowseToUrlQueryer
+    public class BrowseToUrlQueryer : IBrowseToUrlQueryer
     {
         private DTE _dte;
 

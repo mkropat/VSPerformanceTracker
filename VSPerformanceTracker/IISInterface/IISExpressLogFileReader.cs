@@ -5,12 +5,12 @@ using VSPerformanceTracker.FSInterface;
 
 namespace VSPerformanceTracker.IISInterface
 {
-    public class IISExpressLogFileParser
+    public class IISExpressLogFileReader : ILogReader
     {
-        private readonly TailReadingFile _logFile;
-        private readonly W3cLogParser _logParser;
+        private readonly IReadableFile _logFile;
+        private readonly ILogParser _logParser;
 
-        public IISExpressLogFileParser(long toSkip, TailReadingFile logFile, W3cLogParser logParser)
+        public IISExpressLogFileReader(long toSkip, IReadableFile logFile, ILogParser logParser)
         {
             _logFile = logFile;
             _logParser = logParser;

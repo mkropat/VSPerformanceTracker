@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace VSPerformanceTracker.FSInterface
 {
-    public class TailReadingFile
+    public class TailReadingFile : IReadableFile
     {
         private readonly string _path;
         private long _lastOffset;

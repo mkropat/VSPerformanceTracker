@@ -2,7 +2,7 @@ using System.IO;
 
 namespace VSPerformanceTracker.FSInterface
 {
-    public interface IOpenableFile
+    public interface IWritableFile
     {
         StreamWriter OpenWriter();
         bool Exists();

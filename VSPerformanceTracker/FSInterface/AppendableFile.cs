@@ -2,7 +2,7 @@ using System.IO;
 
 namespace VSPerformanceTracker.FSInterface
 {
-    public class AppendableFile : IOpenableFile
+    public class AppendableFile : IWritableFile
     {
         public string Path { get; private set; }
 

@@ -2,7 +2,7 @@
 
 namespace VSPerformanceTracker.IISInterface
 {
-    public class W3cLogParser
+    public class W3cLogParser : ILogParser
     {
         private string[] _fieldNames = new string[0];
 

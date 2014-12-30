@@ -19,13 +19,13 @@ namespace VSPerformanceTracker
             public string Path { get; set; }
         }
 
-        private readonly BrowseToUrlQueryer _urlQueryer;
+        private readonly IBrowseToUrlQueryer _urlQueryer;
         private readonly ITimeService _timeService;
         private DebuggerAggregatorEvent _currentEvent;
         private readonly Subject<GenericEventResult> _events = new Subject<GenericEventResult>();
         private readonly IList<DebuggerAggregatorEvent> _bufferedEvents = new List<DebuggerAggregatorEvent>(); // FIXME: should be a circular buffer
 
-        public DebugStartAggregator(BrowseToUrlQueryer urlQueryer, ITimeService timeService)
+        public DebugStartAggregator(IBrowseToUrlQueryer urlQueryer, ITimeService timeService)
         {
             _urlQueryer = urlQueryer;
             _timeService = timeService;

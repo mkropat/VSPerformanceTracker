@@ -4,24 +4,24 @@ using VSPerformanceTracker.FSInterface;
 
 namespace VSPerformanceTracker.IISInterface
 {
-    public sealed class IISExpressLogDirWatcher : IDisposable
+    public sealed class IISExpressLogDirWatcher : ILogListener
     {
-        private IISExpressLogFileParserFactory _factory;
-        private FileUpdateWatcher _watcher;
+        private ILogFileReaderRegistry _readerRegistry;
+        private IFileUpdateWatcher _watcher;
 
-        public IISExpressLogDirWatcher(IISExpressLogFileParserFactory factory, FileUpdateWatcher watcher)
+        public IISExpressLogDirWatcher(ILogFileReaderRegistry readerRegistry, IFileUpdateWatcher watcher)
         {
-            _factory = factory;
+            _readerRegistry = readerRegistry;
             _watcher = watcher;
         }
 
-        public IObservable<IISLogEvent> Watch()
+        public IObservable<IISLogEvent> ListenForEvents()
         {
-            _factory.InitializeSkipOffsets();
-            _watcher.Watch();
+            _readerRegistry.InitializeSkipOffsets();
+            _watcher.StartWatching();
 
             return from updatedFile in _watcher.FilesChanged
-                   let parser = _factory.GetParser(updatedFile)
+                   let parser = _readerRegistry.GetReader(updatedFile)
                    from evt in parser.ReadEvents()
                    select evt;
         }
