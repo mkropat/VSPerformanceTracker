@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="fb877fc8-4c67-4ff4-a282-254700fd4d02" Version="1.4" Language="en-US" Publisher="Microsoft" />
+    <Identity Id="fb877fc8-4c67-4ff4-a282-254700fd4d02" Version="1.5" Language="en-US" Publisher="Michael Kropat" />
     <DisplayName>VSPerformanceTracker</DisplayName>
-    <Description xml:space="preserve">Measure and log performance of Visual Studio start times, builds, and run times.Measure and log </Description>
+    <Description xml:space="preserve">Measure and log performance of Visual Studio start times, builds, and run times.</Description>
   </Metadata>
   <Installation InstalledByMsi="false">
     <InstallationTarget Id="Microsoft.VisualStudio.Pro" Version="[12.0]" />
