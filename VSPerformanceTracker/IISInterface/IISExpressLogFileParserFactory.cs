@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using VSPerformanceTracker.FSInterface;
 
 namespace VSPerformanceTracker.IISInterface
@@ -7,16 +8,17 @@ namespace VSPerformanceTracker.IISInterface
     {
         private readonly Dictionary<string, IISExpressLogFileParser> _parsers = new Dictionary<string, IISExpressLogFileParser>();
 
-        private readonly IFileSizesSnapshot _sizeSnapshot;
+        private readonly Func<IFileSizesSnapshot> _takeSizeSnapshot;
+        private IFileSizesSnapshot _sizeSnapshot;
 
-        public IISExpressLogFileParserFactory(IFileSizesSnapshot sizeSnapshot)
+        public IISExpressLogFileParserFactory(Func<IFileSizesSnapshot> takeSizeSnapshot)
         {
-            _sizeSnapshot = sizeSnapshot;
+            _takeSizeSnapshot = takeSizeSnapshot;
         }
 
         public void InitializeSkipOffsets()
         {
-            _sizeSnapshot.TakeSnapshot();
+            _sizeSnapshot = _takeSizeSnapshot();
         }
 
         public IISExpressLogFileParser GetParser(string path)

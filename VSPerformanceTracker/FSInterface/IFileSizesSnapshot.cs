@@ -5,7 +5,6 @@ namespace VSPerformanceTracker.FSInterface
 {
     public interface IFileSizesSnapshot
     {
-        void TakeSnapshot();
         long? GetSize(string path);
         IEnumerable<string> ListFilenames();
     }

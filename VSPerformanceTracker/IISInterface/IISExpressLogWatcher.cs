@@ -15,7 +15,7 @@ namespace VSPerformanceTracker.IISInterface
         {
             var watchers =
                 from dir in Directory.EnumerateDirectories(IISExpressSettings.LogPath)
-                let factory = new IISExpressLogFileParserFactory(new FileSizesSnapshot(dir))
+                let factory = new IISExpressLogFileParserFactory(() => FileSizesSnapshot.TakeSnapshot(dir))
                 let fileWatcher = new FileUpdateWatcher(() => FileSizesSnapshot.TakeSnapshot(dir))
                 let logDirWatcher = new IISExpressLogDirWatcher(factory, fileWatcher)
                 select logDirWatcher.Watch();
