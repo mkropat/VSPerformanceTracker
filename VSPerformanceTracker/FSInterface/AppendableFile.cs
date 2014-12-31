@@ -4,21 +4,21 @@ namespace VSPerformanceTracker.FSInterface
 {
     public class AppendableFile : IWritableFile
     {
-        public string Path { get; private set; }
+        private IPathQueryer _queryer;
 
-        public AppendableFile(string path)
+        public AppendableFile(IPathQueryer queryer)
         {
-            Path = path;
+            _queryer = queryer;
         }
 
         public StreamWriter OpenWriter()
         {
-            return File.AppendText(Path);
+            return File.AppendText(_queryer.GetCurrent());
         }
 
         public bool Exists()
         {
-            return File.Exists(Path);
+            return File.Exists(_queryer.GetCurrent());
         }
     }
 }

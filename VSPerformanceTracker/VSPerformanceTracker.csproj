@@ -149,6 +149,7 @@
     <Compile Include="FSInterface\FileSizesSnapshot.cs" />
     <Compile Include="FSInterface\IDirUpdateWatcherFactory.cs" />
     <Compile Include="FSInterface\IPathEnumerator.cs" />
+    <Compile Include="FSInterface\IPathQueryer.cs" />
     <Compile Include="FSInterface\ListeningDirUpdateWatcher.cs" />
     <Compile Include="FSInterface\PollingFileUpdateWatcher.cs" />
     <Compile Include="FSInterface\IDirUpdateWatcher.cs" />
@@ -188,6 +189,15 @@
     <Compile Include="EventResults\SolutionLoadToPerformanceEventTransformer.cs" />
     <Compile Include="FSInterface\AppendableFile.cs" />
     <Compile Include="FSInterface\IWritableFile.cs" />
+    <Compile Include="UI\GeneralOptionsControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="UI\GeneralOptionsControl.Designer.cs">
+      <DependentUpon>GeneralOptionsControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="UI\VsPerformanceTrackerOptionsPage.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="VSInterface\BrowseToUrlQueryer.cs" />
     <Compile Include="VSInterface\BuildListener.cs" />
     <Compile Include="VSInterface\DebuggerEvent.cs" />
@@ -205,6 +215,9 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="UI\GeneralOptionsControl.resx">
+      <DependentUpon>GeneralOptionsControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="VSPackage.resx">
       <MergeWithCTO>true</MergeWithCTO>

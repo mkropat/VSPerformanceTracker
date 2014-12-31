@@ -10,6 +10,7 @@ using VSPerformanceTracker.FSInterface;
 using VSPerformanceTracker.IISInterface;
 using VSPerformanceTracker.Logging;
 using VSPerformanceTracker.OSInterface;
+using VSPerformanceTracker.UI;
 using VSPerformanceTracker.VSInterface;
 
 namespace VSPerformanceTracker
@@ -21,9 +22,12 @@ namespace VSPerformanceTracker
     // in the Help/About dialog of Visual Studio.
     [InstalledProductRegistration("#110", "#112", "1.0", IconResourceID = 400)]
     [ProvideAutoLoad(UIContextGuids80.SolutionExists)]
+    [ProvideOptionPage(typeof (VsPerformanceTrackerOptionsPage), VsPerformanceTrackerPackage.PackageName, "General", 0, 0, supportsAutomation: true)]
     [Guid(GuidList.guidVSPackage1PkgString)]
     public sealed class VsPerformanceTrackerPackage : Package, IDisposable
     {
+        public const string PackageName = "VSPerformanceTracker";
+
         private BuildListener _buildListener;
         private DebuggerListener _debuggerListener;
         private SolutionLoadListener _solutionLoadListener;
@@ -37,9 +41,10 @@ namespace VSPerformanceTracker
 
         private void StartLogging(IObservable<PerformanceEvent> events)
         {
-            var logFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "build-log.csv");
+            Func<VsPerformanceTrackerOptionsPage> getOptions = () => (VsPerformanceTrackerOptionsPage)GetDialogPage(typeof(VsPerformanceTrackerOptionsPage));
+            var outputFile = new AppendableFile(new LogPathQueryer(getOptions));
 
-            PerformanceEventLogger.Run(events, new CsvSerializer(new AppendableFile(logFile)));
+            PerformanceEventLogger.Run(events, new CsvSerializer(outputFile));
         }
 
         private IObservable<PerformanceEvent> StartEventListeners()
@@ -106,6 +111,21 @@ namespace VSPerformanceTracker
 
             if (_solutionLoadListener != null)
                 _solutionLoadListener.Dispose();
+        }
+    }
+
+    public class LogPathQueryer : IPathQueryer
+    {
+        private readonly Func<VsPerformanceTrackerOptionsPage> _getOptions;
+
+        public LogPathQueryer(Func<VsPerformanceTrackerOptionsPage> getOptions)
+        {
+            _getOptions = getOptions;
+        }
+
+        public string GetCurrent()
+        {
+            return _getOptions().LogPath;
         }
     }
 
